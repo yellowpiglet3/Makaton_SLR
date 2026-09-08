@@ -1,11 +1,11 @@
 streamlit
 opencv-python-headless
-torch --index-url https://download.pytorch.org/whl/cpu
-torchvision --index-url https://download.pytorch.org/whl/cpu
+torch 
+torchvision
 timm
 pandas
 numpy
-mediapipe==0.10.14
+mediapipe==0.10.35
 streamlit-player
 streamlit-webrtc
 av
