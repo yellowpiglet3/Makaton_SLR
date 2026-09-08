@@ -9,13 +9,10 @@ import numpy as np
 import mediapipe as mp
 import sys
 from streamlit_player import st_player
-sys.path.append(
-    r"C:\Users\joann\OneDrive - Robert Gordon University\Project\TD-GCN-Gesture")
-sys.path.append(r"C:\Users\joann\OneDrive - Robert Gordon University\Project\sign-language-recognition\03_model_training")
-from models.mobilenet_v4_hybrid_medium_model import MobilenetV5HybridMediumModel
+from MobileNetV4.mobilenet_v4_hybrid_medium_model import MobilenetV5HybridMediumModel
 from PIL import Image
 from torchvision import transforms
-from model.tdgcn import Model
+from TD_GCN.tdgcn import Model
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 import av
 import shutil
@@ -49,7 +46,7 @@ label2=[
     "Where",
     "Yes"
 ]
-example_path=(r"C:\Users\joann\OneDrive - Robert Gordon University\Project\Example Signs")
+example_path=("Example Signs")
 st.title("Makaton Recognition")
 st.write("This model recognises Makaton Signs. With an emphasis on recognising signs from people with poor dexterity.")
 st.subheader("It can recognise 12 signs: ")
@@ -81,23 +78,23 @@ with st.expander("How MediaPipe Extracts Landmarks"):
     col1, col2=st.columns(2)
     with col1:
         st.subheader("Original Video")
-        st.image(r"C:\Users\joann\OneDrive - Robert Gordon University\Project\Original Video.gif")
+        st.image("MediaPipe Demo/Original Video.gif")
     with col2:
         st.subheader("Processed Video")
 
-        st.image(r"C:\Users\joann\OneDrive - Robert Gordon University\Project\skeleton.gif")
+        st.image("MediaPipe Demo/skeleton.gif")
 col1, col2=st.columns(2)
 with col1:
     st.subheader("MobileNetV4 Metrics")
     st.metric( "MobileNetV4 Accuracy", "57.32%")
     st.metric( "MobileNetV4 F1 Score", "55.04%")
-    st.image(r"C:\Users\joann\OneDrive - Robert Gordon University\Project\sign-language-recognition\99_model_output\results\8\mediapipe\2026-08-21_20-26-26_confusion_matrix.png", use_container_width=True)
+    st.image("Model Confusion Matrices/2026-08-21_20-26-26_confusion_matrix.png", use_container_width=True)
 
 with col2:
     st.subheader("TD-GCN Metrics")
     st.metric( "TD-GCN Accuracy", "57.32%")
     st.metric("TD-GCN F1 Score", "57.92%")
-    st.image(r"C:\Users\joann\OneDrive - Robert Gordon University\Project\tdgcn_confusion_matrix.png")
+    st.image("Model Confusion Matrices/tdgcn_confusion_matrix.png")
 st.write("""These models achieve the same accuracy but give different results and F1-scores. 
 The 'best' recognised signs are based on precision not recall, which means how good the model is at correctly predicting True Positives, with no regard to incorrect predictions - False Positives. 
 This can be seen in the MobileNetV4 model where one of the 'best' signs is Home as all Home signs were predicted as Home, but the model over predicts Home, classifying more Yes signs as Home than Yes.
@@ -150,8 +147,8 @@ input_method=st.radio("Choose Input Method", [
     "Record Using Webcam"
     ])
 #load model
-WEIGHTS_PATH = r"C:\Users\joann\OneDrive - Robert Gordon University\Project\sign-language-recognition\99_model_output\results\8\mediapipe\models\2026-08-21_20-26-26.pth"
-GCN_WEIGHTS = r"C:\Users\joann\OneDrive - Robert Gordon University\Project\TD-GCN-Gesture\work_dir\mediapipe_video_split\runs-25-1700.pt"
+WEIGHTS_PATH = "MobileNetV4/2026-08-21_20-26-26.pth"
+GCN_WEIGHTS = "TD_GCN/runs-25-1700.pt"
 
 if "recording" not in st.session_state:
     st.session_state.recording=False
@@ -178,7 +175,7 @@ def load_GCNmodel():
     GCNmodel=Model(num_class=12,
                    num_point=67,
                    num_person=1,
-                   graph="graph.mediapipe_sign.Graph",
+                   graph="TD_GCN.graph.mediapipe_sign.Graph",
                    graph_args={"labeling_mode":"spatial"})
     weights=torch.load(GCN_WEIGHTS, map_location="cpu")
     if "model_state_dict" in weights:
