@@ -1,5 +1,13 @@
+import sys
+print("Python:", sys.version)
 import streamlit as st
-import cv2
+#import cv2
+try:
+    import cv2
+    print(cv2.__version__)
+except Exception as e:
+    print("OpenCV import failed:", e)
+    cv2 = None
 import torch
 import tempfile
 import os
