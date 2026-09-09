@@ -1,11 +1,11 @@
 streamlit
-opencv-python-headless==4.9.0.80
+opencv-python-headless==5.0.0.93
 torch 
 torchvision
 timm
 pandas
 numpy
-mediapipe==0.10.35
+mediapipe==1.0.1
 streamlit-player
 streamlit-webrtc
 av
