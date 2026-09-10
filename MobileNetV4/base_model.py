@@ -1,10 +1,10 @@
 import pandas as pd
-df = pd.read_csv(
+def load_dataset():
+    return pd.read_csv(
         "mediapipe_dataset.csv"
     )
 
 
-print(df["person"].dtype)
 
 from abc import ABC, abstractmethod
 

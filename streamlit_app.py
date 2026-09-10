@@ -12,10 +12,12 @@ import torch
 import tempfile
 import os
 import pandas as pd
-import mediapipe as mp
+try:
+    import mediapipe as mp
+except Exception as e:
+    st.error(f"MediaPipe failed to load: {e}")
+    st.stop()
 import numpy as np
-import mediapipe as mp
-import sys
 from streamlit_player import st_player
 from MobileNetV4.mobilenet_v4_hybrid_medium_model import MobilenetV5HybridMediumModel
 from PIL import Image
