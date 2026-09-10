@@ -4,7 +4,7 @@ torch
 torchvision
 timm
 pandas
-numpy
+numpy==1.26.4
 mediapipe==0.10.35
 streamlit-player
 streamlit-webrtc
