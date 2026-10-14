@@ -106,7 +106,7 @@ with col2:
     st.metric("TD-GCN F1 Score", "57.92%")
     st.image("Model Confusion Matrices/tdgcn_confusion_matrix.png")
 st.write("""These models achieve the same accuracy but give different results and F1-scores. 
-The 'best' recognised signs are based on precision not recall, which means how good the model is at correctly predicting True Positives, with no regard to incorrect predictions - False Positives. 
+The 'best' recognised signs are based on True Positive Rate, which means how good the model is at correctly identifying True Positives, with no regard to incorrect predictions - False Positives. 
 This can be seen in the MobileNetV4 model where one of the 'best' signs is Home as all Home signs were predicted as Home, but the model over predicts Home, classifying more Yes signs as Home than Yes.
 While the TD-GCN model does not over predict any one sign, its errors are more random. 
 """)
