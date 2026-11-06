@@ -11,3 +11,4 @@ streamlit-webrtc
 av
 Pillow
 GitPython
+requests
