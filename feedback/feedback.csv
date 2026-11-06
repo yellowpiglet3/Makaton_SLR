@@ -1,3 +1,3 @@
-predicted_SLR_sign,prediced_GCN_sign,SLR_confidence,GCN_confidence,correct_label,feedback_type,timestamp,predicted_SLR_sign.1,predicted_GCN_sign,SLR_confidence.1
+predicted_SLR_sign,prediced_GCN_sign,SLR_confidence,GCN_confidence,correct_label,feedback_type,timestamp,
 ,,,0.4351503252983093,Home,corrected,2026-11-06 17:13:44.359042,Where,Where,0.8857545256614685
 Where,,0.8857545256614685,0.4351503252983093,Home,corrected,2026-11-06 17:14:48.083119,,Where,
