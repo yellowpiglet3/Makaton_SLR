@@ -26,7 +26,74 @@ from TD_GCN.tdgcn import Model
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 import av
 import shutil
+import requests
+import io
+import base64
+OWNER="yellowpiglet3"
+REPO="Makaton_SLR"
+FILE_PATH="feedback/feedback.csv"
+TOKEN=st.secrets["GITHUB_TOKEN"]
+HEADERS={
+    "Authorization":f"token {TOKEN}",
+    "Accept": "application/vnd.github+json"
+}
+def upload_landmark_csv(df, filename):
 
+    csv_content = df.to_csv(index=False)
+
+    encoded = base64.b64encode(
+        csv_content.encode("utf-8")
+    ).decode("utf-8")
+
+    url = (
+        f"https://api.github.com/repos/"
+        f"{OWNER}/{REPO}/contents/"
+        f"feedback_landmarks/{filename}"
+    )
+
+    payload = {
+        "message": f"Add landmark sample {filename}",
+        "content": encoded
+    }
+
+    response = requests.put(
+        url,
+        headers=HEADERS,
+        json=payload
+    )
+    return response
+def load_feedback_csv():
+    url=(
+        f"https://api.github.com/repos/"
+        f"{OWNER}/{REPO}/contents/{FILE_PATH}"
+    )
+    r=requests.get(url, headers=HEADERS)
+    if r.status_code == 404:
+        return pd.DataFrame(), None
+    data=r.json()
+    content=base64.b64decode(
+        data["content"]
+    ).decode()
+    df=pd.read_csv(io.StringIO(content))
+    return df, data["sha"]
+
+def save_feedback(df,sha):
+    csv_text=df.to_csv(index=False)
+    encoded=base64.b64encode(
+        csv_text.encode()
+    ).decode()
+    url=(
+        f"https://api.github.com/repos/"
+        f"{OWNER}/{REPO}/contents/{FILE_PATH}"
+    )
+    payload={ 
+        "message": "Update feedback.csv",
+        "content": encoded,
+        "sha": sha
+    }
+    r=requests.put(url, headers=HEADERS, json=payload)
+    return r.status_code
+feedback_root = "Feedback"
 labels = [
     "Book",
     "Car",
@@ -578,7 +645,7 @@ if current_video is not None:
         st.session_state.gif_path=gif_path
         st.session_state.classified=True
         st.session_state.comparison=comparison
-feedback_root=r"C:\Users\joann\OneDrive - Robert Gordon University\Project\Feedback"
+
 os.makedirs(feedback_root, exist_ok=True)
 if st.session_state.classified:
     # st.subheader("Last Prediction")
@@ -604,22 +671,45 @@ if st.session_state.classified:
                 "timestamp":[pd.Timestamp.now()]
                 })
             feedback_file=os.path.join(feedback_root, "feedback.csv")
-            feedback_row.to_csv(feedback_file, mode="a", header=not os.path.exists(feedback_file), index=False)
+            existing_df,sha=load_feedback_csv()
+            updated_df=pd.concat(
+                [existing_df, feedback_row],
+                ignore_index=True
+            )
+            status=save_feedback(updated_df,sha)
+            if status in [200,201]:
+                st.success("Feedback saved to GitHub.")
+            else:
+                st.error(f"GitHub uplod failed: {status}")
+                
+            
             feedback_folder=os.path.join(feedback_root,"feedback_videos")
             os.makedirs(feedback_folder, exist_ok=True)
-            new_name=f"{correct_sign}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.mp4"
+            new_name=f"{correct_sign}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S_%f')}.mp4"
             new_path=os.path.join(feedback_folder, new_name)
             if save_video:
                 shutil.copy(st.session_state.video_path, new_path)
             if save_landmarks:
-                landmark_folder=os.path.join(feedback_root, "feedback_landmarks")
-                os.makedirs(landmark_folder, exist_ok=True)
-                csv_name=(
+                csv_name = (
                     f"{correct_sign}_"
-                    f"{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                    f"{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S_%f')}.csv"
+                )
+            
+                response = upload_landmark_csv(
+                    st.session_state.df,
+                    csv_name
+                )
+            
+                if response.status_code in [200, 201]:
+                    st.success(
+                        "Landmark data saved to GitHub."
                     )
-                landmark_path=os.path.join(landmark_folder,csv_name)
-                st.session_state.df.to_csv(landmark_path, index=False)
+                else:
+                    st.error(
+                        f"GitHub upload failed: "
+                        f"{response.status_code}"
+                    )
+                    st.write(response.text)
             st.success("Thank you Your feedback has been recorded.")
     if feedback == "✅ Correct":
          if st.button("Submit Correct Feedback"):
@@ -633,10 +723,19 @@ if st.session_state.classified:
                 "timestamp":[pd.Timestamp.now()]
                 })
             feedback_file=os.path.join(feedback_root, "feedback.csv")
-            feedback_row.to_csv(feedback_file, mode="a", header=not os.path.exists(feedback_file), index=False)
+            existing_df,sha=load_feedback_csv()
+            updated_df=pd.concat(
+                [existing_df, feedback_row],
+                ignore_index=True
+            )
+            status=save_feedback(updated_df,sha)
+            if status in [200,201]:
+                st.success("Feedback saved to GitHub.")
+            else:
+                st.error(f"GitHub uplod failed: {status}")
             feedback_folder=os.path.join(feedback_root,"feedback_videos")
             os.makedirs(feedback_folder, exist_ok=True)
-            new_name=f"{st.session_state.SLRsign}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.mp4"
+            new_name=f"{st.session_state.SLRsign}_{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S_%f')}.mp4"
             new_path=os.path.join(feedback_folder, new_name)
             if save_video:
                 shutil.copy(st.session_state.video_path, new_path)
@@ -645,10 +744,10 @@ if st.session_state.classified:
                 os.makedirs(landmark_folder, exist_ok=True)
                 csv_name=(
                     f"{st.session_state.SLRsign}_"
-                    f"{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                    f"{pd.Timestamp.now().strftime('%Y%m%d_%H%M%S_%f')}.csv"
                     )
                 landmark_path=os.path.join(landmark_folder,csv_name)
-                st.session_state.df.to_csv(landmark_path, index=False)
+                response = upload_landmark_csv(st.session_state.df, csv_name)
             st.session_state.feedback_submitted=True
             st.session_state.classified=False
             if st.session_state.feedback_submitted:
@@ -665,3 +764,4 @@ if st.button("Reset Classification"):
             if key in st.session_state:
                 del st.session_state[key]
             st.rerun()
+
