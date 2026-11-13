@@ -678,7 +678,7 @@ if st.session_state.classified:
             )
             status=save_feedback(updated_df,sha)
             if status in [200,201]:
-                #st.success("Feedback saved to GitHub.")
+                st.success("Feedback saved to GitHub.")
             else:
                 st.error(f"GitHub uplod failed: {status}")
                 
@@ -701,9 +701,9 @@ if st.session_state.classified:
                 )
             
                 if response.status_code in [200, 201]:
-                   # st.success(
-                    #    "Landmark data saved to GitHub."
-                    #)
+                    st.success(
+                        "Landmark data saved to GitHub."
+                    )
                 else:
                     st.error(
                         f"GitHub upload failed: "
